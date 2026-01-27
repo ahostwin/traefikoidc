@@ -98,40 +98,40 @@ type RedisConfig struct {
 
 // DynamicClientRegistrationConfig configures OIDC Dynamic Client Registration (RFC 7591)
 type DynamicClientRegistrationConfig struct {
-	ClientMetadata       *ClientRegistrationMetadata `json:"clientMetadata,omitempty"`
-	InitialAccessToken   string                      `json:"initialAccessToken,omitempty"`
-	RegistrationEndpoint string                      `json:"registrationEndpoint,omitempty"`
-	CredentialsFile      string                      `json:"credentialsFile,omitempty"`
+	ClientMetadata       *ClientRegistrationMetadata `json:"clientMetadata,omitempty" yaml:"clientMetadata,omitempty"`
+	InitialAccessToken   string                      `json:"initialAccessToken,omitempty" yaml:"initialAccessToken,omitempty"`
+	RegistrationEndpoint string                      `json:"registrationEndpoint,omitempty" yaml:"registrationEndpoint,omitempty"`
+	CredentialsFile      string                      `json:"credentialsFile,omitempty" yaml:"credentialsFile,omitempty"`
 	// StorageBackend specifies where to store DCR credentials: "file", "redis", or "auto"
 	// - "file": Use file-based storage (default for backward compatibility)
 	// - "redis": Use Redis exclusively (fails if Redis unavailable)
 	// - "auto": Use Redis if available, fallback to file (default)
-	StorageBackend string `json:"storageBackend,omitempty"`
+	StorageBackend string `json:"storageBackend,omitempty" yaml:"storageBackend,omitempty"`
 	// RedisKeyPrefix is the prefix for Redis keys when using Redis storage (default: "dcr:creds:")
-	RedisKeyPrefix     string `json:"redisKeyPrefix,omitempty"`
-	Enabled            bool   `json:"enabled"`
-	PersistCredentials bool   `json:"persistCredentials"`
+	RedisKeyPrefix     string `json:"redisKeyPrefix,omitempty" yaml:"redisKeyPrefix,omitempty"`
+	Enabled            bool   `json:"enabled" yaml:"enabled"`
+	PersistCredentials bool   `json:"persistCredentials" yaml:"persistCredentials"`
 }
 
 // ClientRegistrationMetadata contains client metadata for dynamic registration (RFC 7591)
 type ClientRegistrationMetadata struct {
-	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method,omitempty"`
-	TOSURI                  string   `json:"tos_uri,omitempty"`
-	Scope                   string   `json:"scope,omitempty"`
-	ApplicationType         string   `json:"application_type,omitempty"`
-	SubjectType             string   `json:"subject_type,omitempty"`
-	ClientName              string   `json:"client_name,omitempty"`
-	LogoURI                 string   `json:"logo_uri,omitempty"`
-	ClientURI               string   `json:"client_uri,omitempty"`
-	PolicyURI               string   `json:"policy_uri,omitempty"`
-	JWKSURI                 string   `json:"jwks_uri,omitempty"`
-	ResponseTypes           []string `json:"response_types,omitempty"`
-	Contacts                []string `json:"contacts,omitempty"`
-	RedirectURIs            []string `json:"redirect_uris"`
-	DefaultACRValues        []string `json:"default_acr_values,omitempty"`
-	GrantTypes              []string `json:"grant_types,omitempty"`
-	DefaultMaxAge           int      `json:"default_max_age,omitempty"`
-	RequireAuthTime         bool     `json:"require_auth_time,omitempty"`
+	TokenEndpointAuthMethod string   `json:"token_endpoint_auth_method,omitempty" yaml:"token_endpoint_auth_method,omitempty"`
+	TOSURI                  string   `json:"tos_uri,omitempty" yaml:"tos_uri,omitempty"`
+	Scope                   string   `json:"scope,omitempty" yaml:"scope,omitempty"`
+	ApplicationType         string   `json:"application_type,omitempty" yaml:"application_type,omitempty"`
+	SubjectType             string   `json:"subject_type,omitempty" yaml:"subject_type,omitempty"`
+	ClientName              string   `json:"client_name,omitempty" yaml:"client_name,omitempty"`
+	LogoURI                 string   `json:"logo_uri,omitempty" yaml:"logo_uri,omitempty"`
+	ClientURI               string   `json:"client_uri,omitempty" yaml:"client_uri,omitempty"`
+	PolicyURI               string   `json:"policy_uri,omitempty" yaml:"policy_uri,omitempty"`
+	JWKSURI                 string   `json:"jwks_uri,omitempty" yaml:"jwks_uri,omitempty"`
+	ResponseTypes           []string `json:"response_types,omitempty" yaml:"response_types,omitempty"`
+	Contacts                []string `json:"contacts,omitempty" yaml:"contacts,omitempty"`
+	RedirectURIs            []string `json:"redirect_uris" yaml:"redirect_uris"`
+	DefaultACRValues        []string `json:"default_acr_values,omitempty" yaml:"default_acr_values,omitempty"`
+	GrantTypes              []string `json:"grant_types,omitempty" yaml:"grant_types,omitempty"`
+	DefaultMaxAge           int      `json:"default_max_age,omitempty" yaml:"default_max_age,omitempty"`
+	RequireAuthTime         bool     `json:"require_auth_time,omitempty" yaml:"require_auth_time,omitempty"`
 }
 
 // SecurityHeadersConfig configures security headers for the plugin
