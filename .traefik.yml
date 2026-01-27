@@ -1,7 +1,7 @@
 displayName: Traefik OIDC
 type: middleware
 
-import: github.com/lukaszraczylo/traefikoidc
+import: github.com/ahostwin/traefikoidc
 
 summary: |
   Universal OpenID Connect (OIDC) authentication middleware for Traefik.
