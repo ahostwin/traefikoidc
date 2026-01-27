@@ -229,6 +229,29 @@ func NewWithContext(ctx context.Context, config *Config, next http.Handler, name
 		sessionInvalidationCache: cacheManager.GetSharedSessionInvalidationCache(),
 	}
 
+	// DEBUG: Log DCR configuration when plugin is initialized
+	t.logger.Debugf("=== Plugin Initialization: DCR Config Debug ===")
+	t.logger.Debugf("config.DynamicClientRegistration is nil: %v", config.DynamicClientRegistration == nil)
+	if config.DynamicClientRegistration != nil {
+		t.logger.Debugf("config.DynamicClientRegistration.Enabled: %v", config.DynamicClientRegistration.Enabled)
+		t.logger.Debugf("config.DynamicClientRegistration.ClientMetadata is nil: %v", config.DynamicClientRegistration.ClientMetadata == nil)
+		if config.DynamicClientRegistration.ClientMetadata != nil {
+			t.logger.Debugf("config.DynamicClientRegistration.ClientMetadata.RedirectURIs length: %d", len(config.DynamicClientRegistration.ClientMetadata.RedirectURIs))
+			if len(config.DynamicClientRegistration.ClientMetadata.RedirectURIs) > 0 {
+				t.logger.Debugf("config.DynamicClientRegistration.ClientMetadata.RedirectURIs: %v", config.DynamicClientRegistration.ClientMetadata.RedirectURIs)
+			} else {
+				t.logger.Debugf("config.DynamicClientRegistration.ClientMetadata.RedirectURIs is EMPTY or NIL")
+			}
+			t.logger.Debugf("config.DynamicClientRegistration.ClientMetadata.ClientName: %s", config.DynamicClientRegistration.ClientMetadata.ClientName)
+			t.logger.Debugf("config.DynamicClientRegistration.ClientMetadata.ApplicationType: %s", config.DynamicClientRegistration.ClientMetadata.ApplicationType)
+		}
+	}
+	t.logger.Debugf("t.dcrConfig is nil: %v", t.dcrConfig == nil)
+	if t.dcrConfig != nil {
+		t.logger.Debugf("t.dcrConfig.ClientMetadata is nil: %v", t.dcrConfig.ClientMetadata == nil)
+	}
+	t.logger.Debugf("=== End Plugin Initialization: DCR Config Debug ===")
+
 	// Log audience configuration
 	if config.Audience != "" && config.Audience != config.ClientID {
 		t.logger.Infof("Custom audience configured: %s", config.Audience)
@@ -422,6 +445,50 @@ func (t *TraefikOidc) updateMetadataEndpoints(metadata *ProviderMetadata) {
 
 	// Perform Dynamic Client Registration if enabled and ClientID is not set
 	if t.dcrConfig != nil && t.dcrConfig.Enabled && t.clientID == "" {
+		// DEBUG: Log DCR configuration details before attempting registration
+		t.logger.Debugf("=== DCR Configuration Debug ===")
+		t.logger.Debugf("DCR Config is nil: %v", t.dcrConfig == nil)
+		if t.dcrConfig != nil {
+			t.logger.Debugf("DCR Enabled: %v", t.dcrConfig.Enabled)
+			t.logger.Debugf("DCR RegistrationEndpoint: %s", t.dcrConfig.RegistrationEndpoint)
+			t.logger.Debugf("DCR InitialAccessToken set: %v", t.dcrConfig.InitialAccessToken != "")
+			t.logger.Debugf("DCR CredentialsFile: %s", t.dcrConfig.CredentialsFile)
+			t.logger.Debugf("DCR PersistCredentials: %v", t.dcrConfig.PersistCredentials)
+			t.logger.Debugf("DCR StorageBackend: %s", t.dcrConfig.StorageBackend)
+			
+			// Log ClientMetadata details
+			t.logger.Debugf("DCR ClientMetadata is nil: %v", t.dcrConfig.ClientMetadata == nil)
+			if t.dcrConfig.ClientMetadata != nil {
+				t.logger.Debugf("ClientMetadata.RedirectURIs length: %d", len(t.dcrConfig.ClientMetadata.RedirectURIs))
+				if len(t.dcrConfig.ClientMetadata.RedirectURIs) > 0 {
+					t.logger.Debugf("ClientMetadata.RedirectURIs: %v", t.dcrConfig.ClientMetadata.RedirectURIs)
+				} else {
+					t.logger.Debugf("ClientMetadata.RedirectURIs is EMPTY or NIL")
+				}
+				t.logger.Debugf("ClientMetadata.ClientName: %s", t.dcrConfig.ClientMetadata.ClientName)
+				t.logger.Debugf("ClientMetadata.ApplicationType: %s", t.dcrConfig.ClientMetadata.ApplicationType)
+				t.logger.Debugf("ClientMetadata.GrantTypes: %v", t.dcrConfig.ClientMetadata.GrantTypes)
+				t.logger.Debugf("ClientMetadata.ResponseTypes: %v", t.dcrConfig.ClientMetadata.ResponseTypes)
+				t.logger.Debugf("ClientMetadata.TokenEndpointAuthMethod: %s", t.dcrConfig.ClientMetadata.TokenEndpointAuthMethod)
+				t.logger.Debugf("ClientMetadata.Scope: %s", t.dcrConfig.ClientMetadata.Scope)
+				t.logger.Debugf("ClientMetadata.SubjectType: %s", t.dcrConfig.ClientMetadata.SubjectType)
+				t.logger.Debugf("ClientMetadata.LogoURI: %s", t.dcrConfig.ClientMetadata.LogoURI)
+				t.logger.Debugf("ClientMetadata.ClientURI: %s", t.dcrConfig.ClientMetadata.ClientURI)
+				t.logger.Debugf("ClientMetadata.PolicyURI: %s", t.dcrConfig.ClientMetadata.PolicyURI)
+				t.logger.Debugf("ClientMetadata.TOSURI: %s", t.dcrConfig.ClientMetadata.TOSURI)
+				t.logger.Debugf("ClientMetadata.JWKSURI: %s", t.dcrConfig.ClientMetadata.JWKSURI)
+				t.logger.Debugf("ClientMetadata.Contacts: %v", t.dcrConfig.ClientMetadata.Contacts)
+				t.logger.Debugf("ClientMetadata.DefaultACRValues: %v", t.dcrConfig.ClientMetadata.DefaultACRValues)
+				t.logger.Debugf("ClientMetadata.DefaultMaxAge: %d", t.dcrConfig.ClientMetadata.DefaultMaxAge)
+				t.logger.Debugf("ClientMetadata.RequireAuthTime: %v", t.dcrConfig.ClientMetadata.RequireAuthTime)
+			} else {
+				t.logger.Debugf("ClientMetadata is NIL - this will cause DCR to fail if redirect_uris is required")
+			}
+		}
+		t.logger.Debugf("ClientID is empty: %v", t.clientID == "")
+		t.logger.Debugf("ProviderURL: %s", t.providerURL)
+		t.logger.Debugf("=== End DCR Configuration Debug ===")
+		
 		t.performDynamicClientRegistration()
 	}
 }
@@ -429,6 +496,20 @@ func (t *TraefikOidc) updateMetadataEndpoints(metadata *ProviderMetadata) {
 // performDynamicClientRegistration performs automatic client registration with the OIDC provider
 func (t *TraefikOidc) performDynamicClientRegistration() {
 	t.logger.Info("Dynamic Client Registration enabled - registering client with provider")
+
+	// DEBUG: Log DCR config passed to registrar
+	t.logger.Debugf("=== DCR Registrar Initialization Debug ===")
+	t.logger.Debugf("Passing dcrConfig to NewDynamicClientRegistrar")
+	if t.dcrConfig != nil {
+		t.logger.Debugf("dcrConfig.ClientMetadata is nil: %v", t.dcrConfig.ClientMetadata == nil)
+		if t.dcrConfig.ClientMetadata != nil {
+			t.logger.Debugf("dcrConfig.ClientMetadata.RedirectURIs length: %d", len(t.dcrConfig.ClientMetadata.RedirectURIs))
+			if len(t.dcrConfig.ClientMetadata.RedirectURIs) > 0 {
+				t.logger.Debugf("dcrConfig.ClientMetadata.RedirectURIs: %v", t.dcrConfig.ClientMetadata.RedirectURIs)
+			}
+		}
+	}
+	t.logger.Debugf("=== End DCR Registrar Initialization Debug ===")
 
 	// Initialize the DCR registrar if not already done
 	if t.dynamicClientRegistrar == nil {

@@ -223,8 +223,45 @@ func (r *DynamicClientRegistrar) RegisterClient(ctx context.Context, registratio
 
 // buildRegistrationRequest creates the JSON request body for client registration
 func (r *DynamicClientRegistrar) buildRegistrationRequest() ([]byte, error) {
+	// DEBUG: Comprehensive logging of what we receive
+	r.logger.Debugf("=== buildRegistrationRequest Debug ===")
+	r.logger.Debugf("r.config is nil: %v", r.config == nil)
+	if r.config != nil {
+		r.logger.Debugf("r.config.ClientMetadata is nil: %v", r.config.ClientMetadata == nil)
+		if r.config.ClientMetadata != nil {
+			r.logger.Debugf("ClientMetadata.RedirectURIs length: %d", len(r.config.ClientMetadata.RedirectURIs))
+			if len(r.config.ClientMetadata.RedirectURIs) > 0 {
+				r.logger.Debugf("ClientMetadata.RedirectURIs: %v", r.config.ClientMetadata.RedirectURIs)
+			} else {
+				r.logger.Debugf("ClientMetadata.RedirectURIs is EMPTY or NIL")
+			}
+			r.logger.Debugf("ClientMetadata.ClientName: %s", r.config.ClientMetadata.ClientName)
+			r.logger.Debugf("ClientMetadata.ApplicationType: %s", r.config.ClientMetadata.ApplicationType)
+			r.logger.Debugf("ClientMetadata.GrantTypes: %v", r.config.ClientMetadata.GrantTypes)
+			r.logger.Debugf("ClientMetadata.ResponseTypes: %v", r.config.ClientMetadata.ResponseTypes)
+			r.logger.Debugf("ClientMetadata.TokenEndpointAuthMethod: %s", r.config.ClientMetadata.TokenEndpointAuthMethod)
+			r.logger.Debugf("ClientMetadata.Scope: %s", r.config.ClientMetadata.Scope)
+			r.logger.Debugf("ClientMetadata.SubjectType: %s", r.config.ClientMetadata.SubjectType)
+			r.logger.Debugf("ClientMetadata.LogoURI: %s", r.config.ClientMetadata.LogoURI)
+			r.logger.Debugf("ClientMetadata.ClientURI: %s", r.config.ClientMetadata.ClientURI)
+			r.logger.Debugf("ClientMetadata.PolicyURI: %s", r.config.ClientMetadata.PolicyURI)
+			r.logger.Debugf("ClientMetadata.TOSURI: %s", r.config.ClientMetadata.TOSURI)
+			r.logger.Debugf("ClientMetadata.JWKSURI: %s", r.config.ClientMetadata.JWKSURI)
+			r.logger.Debugf("ClientMetadata.Contacts: %v", r.config.ClientMetadata.Contacts)
+			r.logger.Debugf("ClientMetadata.DefaultACRValues: %v", r.config.ClientMetadata.DefaultACRValues)
+			r.logger.Debugf("ClientMetadata.DefaultMaxAge: %d", r.config.ClientMetadata.DefaultMaxAge)
+			r.logger.Debugf("ClientMetadata.RequireAuthTime: %v", r.config.ClientMetadata.RequireAuthTime)
+		} else {
+			r.logger.Debugf("ClientMetadata is NIL - will create empty struct")
+		}
+	} else {
+		r.logger.Debugf("r.config is NIL - this should not happen")
+	}
+	r.logger.Debugf("=== End buildRegistrationRequest Debug ===")
+
 	metadata := r.config.ClientMetadata
 	if metadata == nil {
+		r.logger.Debugf("ClientMetadata is nil, creating empty struct")
 		metadata = &ClientRegistrationMetadata{}
 	}
 
@@ -234,7 +271,15 @@ func (r *DynamicClientRegistrar) buildRegistrationRequest() ([]byte, error) {
 	// Required: redirect_uris
 	if len(metadata.RedirectURIs) > 0 {
 		reqData["redirect_uris"] = metadata.RedirectURIs
+		r.logger.Debugf("Using RedirectURIs from metadata: %v", metadata.RedirectURIs)
 	} else {
+		r.logger.Debugf("ERROR: RedirectURIs is empty - length: %d", len(metadata.RedirectURIs))
+		r.logger.Debugf("This will cause DCR registration to fail")
+		r.logger.Debugf("Diagnostic: metadata == nil: %v", metadata == nil)
+		if metadata != nil {
+			r.logger.Debugf("Diagnostic: metadata.RedirectURIs == nil: %v", metadata.RedirectURIs == nil)
+			r.logger.Debugf("Diagnostic: len(metadata.RedirectURIs): %d", len(metadata.RedirectURIs))
+		}
 		return nil, fmt.Errorf("redirect_uris is required for client registration")
 	}
 
