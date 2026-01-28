@@ -26,7 +26,7 @@ Yaegi Plugin Loading Test
 Plugin directory: ./ref/traefikoidc
 
 ✓ Manifest loaded:
-  Import: github.com/ahostwin/traefikoidc
+  Import: github.com/lukaszraczylo/traefikoidc
   BasePkg: traefikoidc
 
   Module path (from go.mod): github.com/lukaszraczylo/traefikoidc
